@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cyber Operations Center</title>
+
+<!-- Fonts + FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050505;
+  --card:#0d0d0d;
+  --line:#141414;
+  --neon:#00ff9c;
+  --muted:#8a8a8a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:#e6e6e6;font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
+
+.grid{position:fixed;inset:0;pointer-events:none;opacity:.12;
+background-image:linear-gradient(#0a0a0a 1px,transparent 1px),
+linear-gradient(90deg,#0a0a0a 1px,transparent 1px);
+background-size:40px 40px;z-index:0}
+
+header{position:relative;z-index:1;padding:24px 20px;border-bottom:1px solid var(--line)}
+header h1{font-family:'Orbitron';color:var(--neon);letter-spacing:2px;font-size:clamp(20px,4vw,28px)}
+header p{color:var(--muted);margin-top:6px;font-size:13px}
+
+.wrap{position:relative;z-index:1;padding:20px}
+.dashboard{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+
+.card{background:rgba(13,13,13,.95);border:1px solid var(--line);border-radius:14px;
+padding:16px;box-shadow:0 0 30px rgba(0,255,156,.05)}
+.card h2{font-family:'Orbitron';font-size:14px;margin-bottom:12px;color:var(--neon)}
+
+.info-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.label{color:#7a7a7a}
+.value{color:#e6e6e6}
+.online{color:var(--neon)}
+
+.span-4{grid-column:span 4}
+.span-6{grid-column:span 6}
+.span-12{grid-column:span 12}
+
+.skill{margin:10px 0}
+.bar{height:8px;background:#111;border-radius:6px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#00ff9c,#00c8ff)}
+
+.terminal{background:#000;border-radius:12px;border:1px solid #1a1a1a}
+.term-head{display:flex;gap:6px;padding:8px;background:#0a0a0a;border-bottom:1px solid #141414}
+.dot{width:10px;height:10px;border-radius:50%}
+.r{background:#ff5f56}.y{background:#ffbd2e}.g{background:#27c93f}
+.term-body{padding:12px;font-size:12px;color:#9efdd3;height:140px;overflow:auto}
+
+footer{text-align:center;padding:18px;color:#444;font-size:11px}
+
+/* ===== Admin Modal ===== */
+#adminModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+z-index:10;align-items:center;justify-content:center}
+#adminModal .card{max-width:320px;width:90%}
+#adminModal input,#adminModal button{
+width:100%;margin-top:10px;background:#000;border:1px solid #1a1a1a;
+color:#00ff9c;padding:8px;border-radius:8px}
+#adminModal button{background:#00ff9c;color:#000;border:none;cursor:pointer}
+
+/* ===== Social Sidebar ===== */
+#socialBar{
+position:fixed;
+top:50%;
+right:14px; /* ظاهر دايمًا */
+transform:translateY(-50%);
+display:flex;
+flex-direction:column;
+gap:10px;
+z-index:5;
+}
+
+#socialBar a{
+width:40px;height:40px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#0d0d0d;
+border:1px solid #1a1a1a;
+border-radius:12px;
+color:#00ff9c;
+font-size:16px;
+text-decoration:none;
+position:relative;
+transition:.25s;
+}
+
+#socialBar a:hover{
+background:#00ff9c;
+color:#000;
+box-shadow:0 0 14px rgba(0,255,156,.7);
+}
+
+#socialBar a span{
+position:absolute;
+right:48px;
+background:#000;
+color:#00ff9c;
+padding:4px 8px;
+border-radius:6px;
+font-size:11px;
+white-space:nowrap;
+opacity:0;
+transform:translateX(10px);
+transition:.25s;
+pointer-events:none;
+}
+
+#socialBar a:hover span{
+opacity:1;
+transform:translateX(0);
+}
+
+@media(max-width:900px){
+.span-4,.span-6{grid-column:span 12}
+}
+</style>
+</head>
+
+<body>
+<div class="grid"></div>
+
+<header>
+<h1>Cyber Operations Center</h1>
+<p>From Offensive Experience to Defensive Excellence</p>
+</header>
+
+<main class="wrap">
+<section class="dashboard">
+
+<div class="card span-4">
+<h2>IP Intelligence</h2>
+<div class="info-row"><span class="label">IPv4</span><span class="value" id="ip">Loading</span></div>
+<div class="info-row"><span class="label">Country</span><span class="value" id="country">-</span></div>
+<div class="info-row"><span class="label">City</span><span class="value" id="city">-</span></div>
+</div>
+
+<div class="card span-4">
+<h2>System</h2>
+<div class="info-row"><span class="label">OS</span><span class="value" id="os">-</span></div>
+<div class="info-row"><span class="label">Browser</span><span class="value" id="browser">-</span></div>
+<div class="info-row"><span class="label">Resolution</span><span class="value" id="res">-</span></div>
+</div>
+
+<div class="card span-4">
+<h2>Network</h2>
+<div class="info-row"><span class="label">Time</span><span class="value" id="time">-</span></div>
+<div class="info-row"><span class="label">Status</span><span class="value online">Stable</span></div>
+</div>
+
+<div class="card span-6">
+<h2>Core Skills</h2>
+<div class="skill"><small>Networking</small><div class="bar"><div class="fill" style="width:85%"></div></div></div>
+<div class="skill"><small>Linux</small><div class="bar"><div class="fill" style="width:80%"></div></div></div>
+<div class="skill"><small>Web Security</small><div class="bar"><div class="fill" style="width:75%"></div></div></div>
+</div>
+
+<div class="card span-6">
+<h2>Live Stats</h2>
+<div class="info-row"><span class="label">Sessions</span><span class="value" id="stat1">0</span></div>
+<div class="info-row"><span class="label">Threats</span><span class="value" id="stat2">0</span></div>
+<div class="info-row"><span class="label">Uptime</span><span class="value" id="stat3">0%</span></div>
+</div>
+
+<div class="card span-12 terminal">
+<div class="term-head"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+<div class="term-body" id="term"></div>
+</div>
+
+</section>
+</main>
+
+<footer>© Cyber Operations Center</footer>
+
+<!-- Admin Modal -->
+<div id="adminModal">
+<div class="card">
+<h2>Admin Access</h2>
+<input id="adminPass" type="password" placeholder="Password">
+<button id="adminBtn">Unlock</button>
+<p id="adminErr" style="color:#ff5f56;font-size:11px;display:none">Access denied</p>
+</div>
+</div>
+
+<!-- Social Sidebar -->
+<div id="socialBar">
+<a href="https://github.com/slash_114" target="_blank"><i class="fab fa-github"></i><span>GitHub</span></a>
+<a href="https://t.me/@slash_114" target="_blank"><i class="fab fa-telegram"></i><span>Telegram</span></a>
+<a href="https://instagram.com/slash.114_" target="_blank"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+<a href="https://linkedin.com/in/meni0x" target="_blank"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+
+// IP info
+fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+ip.textContent=d.ip||'Hidden';
+country.textContent=d.country_name||'-';
+city.textContent=d.city||'-';
+});
+
+// System info
+os.textContent=navigator.platform;
+browser.textContent=navigator.userAgent.split(')')[0]+')';
+res.textContent=screen.width+'x'+screen.height;
+setInterval(()=>time.textContent=new Date().toLocaleTimeString(),1000);
+
+// Terminal simulation
+const lines=[
+'> Initializing defensive modules...',
+'> Loading telemetry...',
+'> Monitoring endpoints...',
+'> Status: Secure ✓'
+];
+let i=0;
+setInterval(()=>{if(i<lines.length)term.innerHTML+=lines[i++]+'<br>'},900);
+
+// Stats
+let a=0,b=0,c=0;
+setInterval(()=>{
+stat1.textContent=a+=Math.floor(Math.random()*4);
+stat2.textContent=b+=Math.floor(Math.random()*2);
+stat3.textContent=(c=Math.min(100,c+1))+'%';
+},1200);
+
+// Admin Modal
+let taps=0,timer=null;
+document.addEventListener('click',e=>{
+if(e.clientX<120&&e.clientY<120){ // Top-left gesture
+taps++;clearTimeout(timer);
+timer=setTimeout(()=>taps=0,2000);
+if(taps===3){adminModal.style.display='flex';taps=0;}
+}});
+
+adminBtn.onclick=()=>{
+if(adminPass.value==='root'){
+sessionStorage.setItem('adminAccess','granted');
+window.location.href='admin.html';
+}else adminErr.style.display='block';
+};
+});
+</script>
+</body>
+</html>
